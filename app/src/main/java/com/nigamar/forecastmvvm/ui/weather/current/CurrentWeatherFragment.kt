@@ -6,19 +6,23 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 
 import com.nigamar.forecastmvvm.R
 import com.nigamar.forecastmvvm.data.network.WeatherApiService
+import com.nigamar.forecastmvvm.ui.base.ScopedFragment
 import kotlinx.android.synthetic.main.current_weather_fragment.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.android.x.closestKodein
+import org.kodein.di.generic.instance
 
-class CurrentWeatherFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = CurrentWeatherFragment()
-    }
+class CurrentWeatherFragment : ScopedFragment(), KodeinAware {
+    override val kodein by closestKodein()
+    val currentWeatherViewModelFactory : CurrentWeatherViewModelFactory by instance()
 
     private lateinit var viewModel: CurrentWeatherViewModel
 
@@ -31,12 +35,16 @@ class CurrentWeatherFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(CurrentWeatherViewModel::class.java)
-        val apiService= WeatherApiService.createService()
-        GlobalScope.launch(Dispatchers.Main) {
-            val currentWeatherResponse=apiService.getCurrentWeather("India").await()
-            textView.text=currentWeatherResponse.currentWeatherEntry.toString()
-        }
+        viewModel = ViewModelProviders.of(this,currentWeatherViewModelFactory).get(CurrentWeatherViewModel::class.java)
+        bindUI()
+    }
+
+    private fun bindUI() = launch{
+        val currentWeather= viewModel.weather.await()
+        currentWeather.observe(this@CurrentWeatherFragment, Observer {
+            if(it==null) return@Observer
+            textView.text=it.toString()
+        })
     }
 
 }
