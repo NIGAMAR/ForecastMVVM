@@ -1,4 +1,4 @@
-package com.nigamar.forecastmvvm.data.response
+package com.nigamar.forecastmvvm.data.db.entity
 
 import com.google.gson.annotations.SerializedName
 

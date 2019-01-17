@@ -1,4 +1,4 @@
-package com.nigamar.forecastmvvm.data.response
+package com.nigamar.forecastmvvm.data.db.entity
 
 data class Condition(
     val code: Int,
