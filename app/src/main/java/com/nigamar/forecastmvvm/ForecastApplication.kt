@@ -4,6 +4,8 @@ import android.app.Application
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.nigamar.forecastmvvm.data.db.ForecastDatabase
 import com.nigamar.forecastmvvm.data.network.*
+import com.nigamar.forecastmvvm.data.provider.UnitProvider
+import com.nigamar.forecastmvvm.data.provider.UnitProviderImpl
 import com.nigamar.forecastmvvm.data.repository.ForecastRepository
 import com.nigamar.forecastmvvm.data.repository.ForecastRepositoryImpl
 import com.nigamar.forecastmvvm.ui.weather.current.CurrentWeatherViewModelFactory
@@ -24,7 +26,8 @@ class ForecastApplication :Application(),KodeinAware {
         bind() from  singleton { WeatherApiService.createService(instance()) }
         bind<WeatherNetworkDataSource>() with singleton { WeatherNetworkDataSourceImpl(instance()) }
         bind<ForecastRepository>() with singleton { ForecastRepositoryImpl(instance(),instance()) }
-        bind() from provider { CurrentWeatherViewModelFactory(instance()) }
+        bind() from provider { CurrentWeatherViewModelFactory(instance(),instance()) }
+        bind<UnitProvider>() with  singleton { UnitProviderImpl(instance()) }
     }
 
     override fun onCreate() {
